@@ -20,7 +20,7 @@ const createTask = async (req, res) => {
     });
 
     res.status(201).json({
-      succes : true,
+      success : true,
       message : "Task Created Successfully",
       task,
     });
@@ -53,8 +53,43 @@ const getTasks = async (req,res) =>{
   }
 }
 
+// ================= Get Single Task =================
+// ================= Get Single Task =================
+const getTaskById = async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+
+    // Check if task exists
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    // Check if task belongs to logged-in user
+    if (task.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to access this task",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      task,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   createTask,
   getTasks,
+  getTaskById,
 }
